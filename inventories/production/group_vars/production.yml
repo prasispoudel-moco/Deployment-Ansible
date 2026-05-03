@@ -1,0 +1,9 @@
+upstream_server: "test_server"
+
+services_path:
+  user-transaction:
+    src_path: "/home/domestic/user-transaction/"
+    dest_path: "/home/domestic/user-transaction/"
+  inventory_api:
+    src_path: "/opt/builds/inv.jar"
+    dest_path: "/opt/apps/inv/app.jar"

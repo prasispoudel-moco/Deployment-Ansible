@@ -1,0 +1,81 @@
+---
+- name: Deploy Java Microservice
+  hosts: all
+#  hosts: localhost
+#  connection: local
+  serial: 1  # This ensures "Rolling Update" (one server at a time)
+  become: yes
+#  vars_files:
+#    vars/jar.yml
+#  vars:
+#    deploy_path: "/opt/{{ app_name }}"
+#    release_path: "{{ deploy_path }}/releases/{{ version }}"
+
+  tasks:
+#    - name: Create release directory
+#      ansible.builtin.file:
+#        path: "{{ release_path }}"
+#        state: directory
+
+    block:
+      - name: Pull Java JAR from staging to semaphore
+        delegate_to: "{{ upstream_server }}"
+        ansible.builtin.fetch:
+          src: "{{ item.value.src_path }}/{{ jar_name }}-{{ version }}-jar-with-dependencies.jar"
+          dest: "/tmp/fetched/{{ jar_name }}-{{ version }}-jar-with-dependencies.jar"
+          flat: yes
+        loop: "{{ services_path | dict2items }}"
+
+      - name: Push Java JAR from semaphore to production
+        ansible.builtin.copy:
+          src: "/tmp/fetched/{{ jar_name }}-{{ version }}-jar-with-dependencies.jar"
+          dest: "{{ item.value.dest_path }}/{{ jar_name }}-{{ version }}-jar-with-dependencies.jar"
+        loop: "{{ services_path | dict2items }}"
+
+    always:
+      - name: Delete the temporary Java JAR on semaphore
+        ansible.builtin.file:
+          path: "/tmp/fetched/"
+          state: absent
+        delegate_to: localhost
+        run_once: true
+
+#    - name: Upload Java JAR
+#      copy:
+#        src: "./target/app-{{ version }}.jar"
+#        dest: "{{ release_path }}/app.jar"
+
+#    - name: Upload Java JAR
+#      copy:
+#        src: "~/java-multi-microservices/bjava/target/bjava-{{ version }}.jar"
+#        dest: "{{ release_path }}/app.jar"
+
+#    - name: Run Database Migrations (Only on the first host)
+#      command: java -jar {{ release_path }}/app.jar --migrate
+#      when: inventory_hostname == groups['backend_servers'][0]
+
+#    - name: Update symlink to new version
+#      file:
+#        src: "{{ release_path }}"
+#        dest: "{{ deploy_path }}/current"
+#        state: link
+
+#    - name: Execute my custom script
+#      ansible.builtin.script: deployment.sh
+#      args:
+#        executable: /bin/bash
+        
+#    - name: Restart systemd service
+#      systemd:
+#        name: "{{ app_name }}"
+#        state: restarted
+#        daemon_reload: yes
+
+#    - name: Wait for Health Check
+#      uri:
+#        url: "http://localhost:8080/actuator/health"
+#        status_code: 200
+#      register: result
+#      until: result.status == 200
+#      retries: 10
+#      delay: 5
