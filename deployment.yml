@@ -31,6 +31,7 @@
             dest: "/tmp/fetched/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
             flat: yes
           loop: "{{ services_path | dict2items }}"
+          when: item.key == jar_name
           check_mode: no
   
         - name: Push Java JAR from semaphore to production
@@ -38,6 +39,7 @@
             src: "/tmp/fetched/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
             dest: "{{ item.value.dest_path }}/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
           loop: "{{ services_path | dict2items }}"
+          when: item.key == jar_name
   
         - name: Update JAR version 
           ansible.builtin.replace:
@@ -46,6 +48,7 @@
             replace: "VERSION={{ jar_version }}"
             backup: yes
           loop: "{{ services_path | dict2items }}"
+          when: item.key == jar_name
   
       always:
         - name: Delete the temporary Java JAR on semaphore
