@@ -1,4 +1,4 @@
-upstream_server: "test"
+upstream_server: "192.168.88.3"
 
 services_path:
   user-transaction:

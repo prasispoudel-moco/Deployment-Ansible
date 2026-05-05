@@ -1,2 +1,0 @@
-[test]
-test ansible_host=192.168.88.3 ansible_user=ansible
