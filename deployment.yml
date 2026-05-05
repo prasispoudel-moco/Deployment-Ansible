@@ -26,6 +26,8 @@
     - block:
         - name: Pull Java JAR from staging to semaphore
           delegate_to: "{{ upstream_server }}"
+          vars:
+            ansible_user: "ansible"
           ansible.builtin.fetch:
             src: "{{ item.value.src_path }}/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
             dest: "/tmp/fetched/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
