@@ -16,6 +16,12 @@
 #      ansible.builtin.file:
 #        path: "{{ release_path }}"
 #        state: directory
+    - name: Ensure local fetch directory exists
+      ansible.builtin.file:
+        path: "/tmp/fetched"
+        state: directory
+      delegate_to: localhost
+      become: no
 
     - block:
         - name: Pull Java JAR from staging to semaphore
