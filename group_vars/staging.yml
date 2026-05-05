@@ -1,4 +1,4 @@
-upstream_server: "test_server"
+upstream_server: "test"
 
 services_path:
   user-transaction:
