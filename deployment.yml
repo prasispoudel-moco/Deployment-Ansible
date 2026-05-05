@@ -34,7 +34,7 @@
 
       - name: Update JAR version 
         ansible.builtin.replace:
-          path: {{ item.value.dest_path }}/etc/config.properties
+          path: "{{ item.value.dest_path }}/etc/config.properties"
           regexp: '^VERSION=.*' 
           replace: "VERSION={{ jar_version }}"
           backup: yes
