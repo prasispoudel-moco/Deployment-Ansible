@@ -51,6 +51,12 @@
             backup: yes
           loop: "{{ services_path | dict2items }}"
           when: item.key == jar_name
+
+#    - name: Restart systemd service
+#      systemd:
+#        name: "{{ app_name }}"
+#        state: restarted
+#        daemon_reload: yes
   
       always:
         - name: Delete the temporary Java JAR on semaphore
