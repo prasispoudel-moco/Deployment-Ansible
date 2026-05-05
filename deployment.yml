@@ -47,6 +47,7 @@
             state: absent
           delegate_to: localhost
           run_once: true
+          become: no
   
 #    - name: Upload Java JAR
 #      copy:
