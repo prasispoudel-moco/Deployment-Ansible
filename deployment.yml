@@ -17,36 +17,36 @@
 #        path: "{{ release_path }}"
 #        state: directory
 
-    block:
-      - name: Pull Java JAR from staging to semaphore
-        delegate_to: "{{ upstream_server }}"
-        ansible.builtin.fetch:
-          src: "{{ item.value.src_path }}/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
-          dest: "/tmp/fetched/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
-          flat: yes
-        loop: "{{ services_path | dict2items }}"
+  block:
+    - name: Pull Java JAR from staging to semaphore
+      delegate_to: "{{ upstream_server }}"
+      ansible.builtin.fetch:
+        src: "{{ item.value.src_path }}/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
+        dest: "/tmp/fetched/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
+        flat: yes
+      loop: "{{ services_path | dict2items }}"
 
-      - name: Push Java JAR from semaphore to production
-        ansible.builtin.copy:
-          src: "/tmp/fetched/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
-          dest: "{{ item.value.dest_path }}/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
-        loop: "{{ services_path | dict2items }}"
+    - name: Push Java JAR from semaphore to production
+      ansible.builtin.copy:
+        src: "/tmp/fetched/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
+        dest: "{{ item.value.dest_path }}/{{ jar_name }}-{{ jar_version }}-jar-with-dependencies.jar"
+      loop: "{{ services_path | dict2items }}"
 
-      - name: Update JAR version 
-        ansible.builtin.replace:
-          path: "{{ item.value.dest_path }}/etc/config.properties"
-          regexp: '^VERSION=.*' 
-          replace: "VERSION={{ jar_version }}"
-          backup: yes
-        loop: "{{ services_path | dict2items }}"
+    - name: Update JAR version 
+      ansible.builtin.replace:
+        path: "{{ item.value.dest_path }}/etc/config.properties"
+        regexp: '^VERSION=.*' 
+        replace: "VERSION={{ jar_version }}"
+        backup: yes
+      loop: "{{ services_path | dict2items }}"
 
-    always:
-      - name: Delete the temporary Java JAR on semaphore
-        ansible.builtin.file:
-          path: "/tmp/fetched/"
-          state: absent
-        delegate_to: localhost
-        run_once: true
+  always:
+    - name: Delete the temporary Java JAR on semaphore
+      ansible.builtin.file:
+        path: "/tmp/fetched/"
+        state: absent
+      delegate_to: localhost
+      run_once: true
 
 #    - name: Upload Java JAR
 #      copy:
